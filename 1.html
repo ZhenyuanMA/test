@@ -1,0 +1,244 @@
+<html>
+	<head>
+		<title>Pong Hau Ki</title>
+		<style>
+			* {padding: 0; margin: 0;} 
+			canvas {background: #fff; border: 3px solid #d3d3d3; display: block; margin: 0 auto;}
+		</style>
+	</head>
+
+	<body>
+
+		<h1 align="center">Game: Pong Hau Ki</h1><hr/>
+		<p align="center">To Win: block your opponent so that they cannot move.</p>
+		<p align="center">You play red, computer plays blue.</p>
+		<p align="center">Click on the ball you want to move.</p></br>
+		<canvas id = "myCanvas" width = "500" height = "500"></canvas>
+
+		<input type = "button" id = "button1" style = "z-index: 2; position: absolute; top: 530; left: 500; width: 100px" value = "start" onclick = "start()">
+
+		<script>
+
+		var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");
+		var point = [];
+		var x = [50, 350, 50, 350, 200];
+		var y = [50, 50, 350, 350, 200];
+		var colors = ["#f1948a", "#5dade2"];
+		var turn = 1;
+		var mousex;
+		var mousey;
+		var move;
+		var click = 0;
+		var pressed = false;
+		var accumu = 0;
+		point = [1, 1, 2, 2, 0];
+		//point = [2, 1, 2, 1, 0];
+		draw(point);
+
+		function drawbg(){
+			ctx.moveTo(50, 50);
+			ctx.lineTo(350, 350);
+			ctx.moveTo(50, 50);
+			ctx.lineTo(50, 350);
+			ctx.moveTo(50, 350);
+			ctx.lineTo(350, 350);
+			ctx.moveTo(350, 50);
+			ctx.lineTo(350, 350);
+			ctx.moveTo(350, 50);
+			ctx.lineTo(50, 350);
+			ctx.lineWidth = 5;
+			ctx.stroke();
+		}
+
+		function drawball(x, y, color){
+		    ctx.beginPath();
+		    ctx.arc(x, y, 25, 0, Math.PI * 2);
+		    ctx.fillStyle = color;
+	        ctx.fill();
+	        ctx.closePath();
+		}
+
+		function check(){
+			var zero = point.indexOf(0);
+			if((zero == 0 && point[2] == point[4]) || (zero == 1 && point[3] == point[4])){
+				return false;
+			}
+			else{
+				return true;
+			}
+			
+		}
+
+		function finish(turn){
+			ctx.fillStyle = "#000000";
+			ctx.font = "25px Arial";
+			if(turn == 2){
+				ctx.fillText("You", 400, 200);
+				ctx.fillText("Win!", 400, 230);
+			}
+			else{
+				ctx.fillText("Computer", 375, 200);
+				ctx.fillText("Wins!", 400, 230);
+			}	
+		}
+	
+		function wait(){
+			if(!pressed){
+				setTimeout(wait, 1000);
+			}
+		}
+		function movable(index){
+			switch(index){
+				case 0:
+					if(point[2] == 0){
+						return 2;
+					}
+					else if(point[4] == 0){
+						return 4;
+					}
+					else{
+						return -1;
+					}
+					break;
+				case 1:
+					if(point[3] == 0){
+						return 3;
+					}
+					else if(point[4] == 0){
+						return 4;
+					}
+					else{
+						return -1;
+					}
+					break;
+				case 2:
+					if(point[0] == 0){
+						return 0;
+					}
+					else if(point[3] == 0){
+						return 3;
+					}
+					else if(point[4] == 0){
+						return 4;
+					}
+					break;
+				case 3:
+					if(point[1] == 0){
+						return 1;
+					}
+					else if(point[2] == 0){
+						return 2;
+					}
+					else if(point[4] == 0){
+						return 4;
+					}
+					break;
+				case 4:
+					if(point[0] == 0){
+						return 0;
+					}
+					else if(point[1] == 0){
+						return 1;
+					}
+					else if(point[2] == 0){
+						return 2;
+					}
+					else if(point[3] == 0){
+						return 3;
+					}
+					break;
+				default:
+				//
+			}
+		}
+
+		function draw(point){
+			drawbg();
+			for(var i = 0; i < 5; i++){
+				if(point[i] != 0){
+					drawball(x[i], y[i], colors[point[i] - 1]);
+				}
+			}
+		}
+		
+		function PC_run(){
+			var cur2_1 = point.indexOf(2);
+			var cur2_2 = point.lastIndexOf(2);
+			if(movable(cur2_1) != -1){
+				var temp = point[cur2_1];
+				point[cur2_1] = point[movable(cur2_1)];
+				point[movable(cur2_1)] = temp;
+			}
+			else{
+				var temp = point[cur2_2];
+				point[cur2_2] = point[movable(cur2_2)];
+				point[movable(cur2_2)] = temp;
+			}
+			setTimeout(function(){ ctx.clearRect(0, 0, 500, 400); draw(point); }, 1000);
+			turn = 1;
+		}
+		
+		function start(){
+			
+			document.getElementById("button1").value = "restart";
+			document.getElementById("button1").onclick = function(){ window.location.reload(); };
+			addEventListener("mousedown", 
+					function (event){
+						mousex = event.clientX - canvas.offsetLeft;
+						mousey = event.clientY - canvas.offsetTop;
+					
+						if(movable(cur1_1) != -1 && movable(cur1_2) != -1){
+							if((Math.pow(mousex - x[cur1_1], 2) + Math.pow(mousey - y[cur1_1], 2)) <= 625){
+								var temp = point[cur1_1];
+								point[cur1_1] = point[movable(cur1_1)];
+								point[movable(cur1_1)] = temp;
+								pressed = true;
+							}
+							else if((Math.pow(mousex - x[cur1_2], 2) + Math.pow(mousey - y[cur1_2], 2)) <= 625){
+								var temp = point[cur1_2];
+								point[cur1_2] = point[movable(cur2_2)];
+								point[movable(cur1_2)] = temp;
+								pressed = true;
+							}
+						}
+						else if(movable(cur1_1) != -1 && movable(cur1_2) == -1){
+							if((Math.pow(mousex - x[cur1_1], 2) + Math.pow(mousey - y[cur1_1], 2)) <= 625){
+								var temp = point[cur1_1];
+								point[cur1_1] = point[movable(cur1_1)];
+								point[movable(cur1_1)] = temp;
+								pressed = true;
+							}
+						}
+						else if(movable(cur1_2) != -1 && movable(cur1_1) == -1){
+							if((Math.pow(mousex - x[cur1_2], 2) + Math.pow(mousey - y[cur1_2], 2)) <= 625){
+								var temp = point[cur1_2];
+								point[cur1_2] = point[movable(cur2_2)];
+								point[movable(cur1_2)] = temp;
+								pressed = true;
+							}
+							
+						}
+						// player
+						var cur1_1 = point.indexOf(1);
+						var cur1_2 = point.lastIndexOf(1);
+						ctx.clearRect(0, 0, 500, 400);
+						draw(point);
+						turn = 2;
+						pressed = false;
+						if(check())
+							PC_run();
+						else
+							setTimeout(function(){ finish(turn); }, 1000);
+					}
+					
+				, false);
+					
+			
+		}
+
+		</script>
+
+	</body>
+
+</html>
